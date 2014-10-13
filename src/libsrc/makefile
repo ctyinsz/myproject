@@ -16,13 +16,13 @@ LINKLIB=-lmxml -pthread -lxml
 .c.lo:
 	libtool --mode=compile --tag=CC ${CC} -g -O -o ${TMP}/$*.lo $(INCLUDE) -c $<
 
-all:pub.la 
-pub.la:pub.lo
-	libtool --mode=link --tag=CC ${CC}  ${MYLDFLAG} -g  -O -o ${TMP}/$(@:.so=.la) $? -rpath ${SHLIBDIR}  -release ${RELEASE_VERSION} -export-dynamic -no-undefined -module ${INCLUDE} -L${LIBDIR} ${LINKLIB}
+all:libpubbasic.la 
+libpubbasic.la:libpubbasic.lo
+	libtool --mode=link --tag=CC ${CC}  ${MYLDFLAG} -g  -O -o ${TMP}/$(@:.so=.la) $? -rpath ${LIBDIR}  -release ${RELEASE_VERSION} -export-dynamic -no-undefined -module ${INCLUDE} -L${LIBDIR} ${LINKLIB}
 
 install:
-	libtool --mode=install install -c ${TMP}/*.la ${SHLIBDIR}
-	libtool --mode=finish  ${SHLIBDIR}
+	libtool --mode=install install -c ${TMP}/*.la ${LIBDIR}
+	libtool --mode=finish  ${LIBDIR}
 
 clean:
 	@rm -f lib*.a *~ *core ${TMP}/*.lo ${TMP}/*.o ${TMP}/*.la ${TMP}/.libs/*
