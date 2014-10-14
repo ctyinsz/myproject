@@ -6,16 +6,25 @@
 #include <stdio.h>
 #include <iconv.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <semaphore.h>  
+#include <pthread.h>
+#include <sys/socket.h>
+#include<netinet/in.h>
+#include<arpa/inet.h>
 #include	"xmle.h"
 #include "config.h"
 #include "mxml.h"
 
 #define MAXPARANUM 100
 #define CFGFILELEN 16384
+#define BUF_SIZE 512
+#define MSG_NUM 3  
+#define LINKMODE 0 //1 短连接 0长连接
 
 #define FLOW "/sys/flow"
 #define COMP FLOW"/comp"
-
+#define COMMBUF "/commbuf"
 
 //资源文件操作
 mxml_type_t	type_cb(mxml_node_t *node);
