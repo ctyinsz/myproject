@@ -18,10 +18,10 @@ LINKLIB=-lmxml -pthread -lxml
 
 all:pub.la 
 pub.la:pub.lo
-	libtool --mode=link --tag=CC ${CC}  ${MYLDFLAG} -g  -O -o ${TMP}/$(@:.so=.la) $? -rpath ${SHLIBDIR}  -release ${RELEASE_VERSION} -export-dynamic -no-undefined -module ${INCLUDE} -L${LIBDIR} ${LINKLIB}
+	libtool --mode=link --tag=CC ${CC}  ${MYLDFLAG} -g  -O -o ${TMP}/$(@:.so=.la) $? -rpath ${SHLIBDIR}  -export-dynamic -no-undefined -module -avoid-version ${INCLUDE} -L${LIBDIR} ${LINKLIB}
 
 install:
-	libtool --mode=install install -c ${TMP}/*.la ${SHLIBDIR}
+	libtool --mode=install install -c ${TMP}/pub.la ${SHLIBDIR}
 	libtool --mode=finish  ${SHLIBDIR}
 
 clean:

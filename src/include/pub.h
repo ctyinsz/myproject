@@ -12,19 +12,27 @@
 #include <sys/socket.h>
 #include<netinet/in.h>
 #include<arpa/inet.h>
+#include <dlfcn.h> 
 #include	"xmle.h"
 #include "config.h"
 #include "mxml.h"
 
-#define MAXPARANUM 100
-#define CFGFILELEN 16384
-#define BUF_SIZE 512
-#define MSG_NUM 3  
-#define LINKMODE 0 //1 短连接 0长连接
+
+#define MAXPARANUM 100		//最大参数数量
+#define CFGFILELEN 16384	//资源文件长度
+#define COMMBUFLEN 16384			//通讯缓冲区长度
+#define BUF_SIZE 512			//一般缓冲区长度
+#define MSG_NUM 3  				//并发数量
+#define LINKMODE 0 				//1 短连接 0长连接
+#define CFGFILENAME 512		//资源文件名长度
+#define NODEPATHLEN 512		//参数树节点路径长度
+#define NODELEN 2048			//参数树节点长度
 
 #define FLOW "/sys/flow"
 #define COMP FLOW"/comp"
 #define COMMBUF "/commbuf"
+
+#define RESPATH "/home/traxex/app/myproject/cfg"
 
 //资源文件操作
 mxml_type_t	type_cb(mxml_node_t *node);

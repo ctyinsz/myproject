@@ -11,14 +11,12 @@ int ExeFlow(HXMLTREE lXmlhandle)
 {
 	printf("in function %s\n",__func__);
 	int iret;
-	char respath[100+1]={0};
-	char flowname[512]={0};
+	char respath[NODEPATHLEN+1]={0};
+	char flowname[CFGFILENAME]={0};
 	char buffer[CFGFILELEN+1]={0};
-	char filename[512]={0};
-	xml_GetElement(lXmlhandle,"/sys/respath",respath,sizeof(respath));
+	char filename[CFGFILENAME]={0};
 	xml_GetElement(lXmlhandle,FLOW"/flowname",flowname,sizeof(flowname));
-	strcpy(filename,respath);
-	strcat(filename,flowname);
+	sprintf(filename,"%s/flow/%s.xml",RESPATH,flowname);
 	loadfile(filename,buffer,CFGFILELEN);
 	
 	mxml_node_t		*tree;
@@ -73,31 +71,83 @@ int ExeFlow(HXMLTREE lXmlhandle)
 int ExeComp(HXMLTREE lXmlhandle)
 {
 	printf("in function %s\n",__func__);
-	char buf[100]={0};
-	char nodepath[512]={0};
-	char status[10]={0};
-	int i=0;
-	int num = 0;
-	num = xml_ElementCount(lXmlhandle,COMP"/complist/para");
-	if(num == 0)
-		return 0;
+	char respath[NODEPATHLEN+1]={0};
+	char compname[CFGFILENAME+1]={0};
+	char buffer[CFGFILELEN+1]={0};
+	char filename[CFGFILENAME+1]={0};
+	xml_GetElement(lXmlhandle,COMP"/compname",compname,sizeof(compname));
+	sprintf(filename,"%s/comp/%s.xml",RESPATH,compname);
+	loadfile(filename,buffer,CFGFILELEN);	
 	
-	for(i=0;i<num;i++)
-	{
-		memset(buf,0x00,sizeof(buf));
-		memset(nodepath,0x00,sizeof(nodepath));
-		snprintf(nodepath,sizeof(nodepath)-1,COMP"/complist/para|%d",i+1);
-		xml_GetElement(lXmlhandle,nodepath,buf,sizeof(buf)-1);
-		printf("para %d:[%s]\n",i,buf);
-	}
+	mxml_node_t		*tree;
+	mxml_node_t		*node_comp;
+	mxml_node_t		*node_comp_para;
+	const char *compfuncname,*compfile;
+	tree = mxmlLoadString(NULL, buffer, type_cb);
+  if (!tree)
+  {
+    fputs("Unable to read XML file!\n", stderr);
+    return (1);
+  }	
+  node_comp = mxmlFindElement(tree,tree,"appresreg","resname",compname,MXML_DESCEND);
+  node_comp_para = mxmlFindElement(node_comp,tree,"pkgregex",NULL,NULL,MXML_DESCEND);
+  compfuncname = mxmlElementGetAttr(node_comp_para,"compfuncname");
+  compfile = mxmlElementGetAttr(node_comp_para,"compfile");
+//  printf("resname %s\n",compname);
+//  printf("funcname %s\n",compfuncname);
+//  printf("compfile %s\n",compfile);
+  
+  void *handle;
+  char *error;  
+  double (*shcompfun)(HXMLTREE);
+  handle = dlopen (compfile, RTLD_LAZY); 
+  if (!handle) {  
+      fprintf (stderr, "%s\n", dlerror());  
+      exit(1);  
+  }
+  shcompfun = dlsym(handle, compfuncname);
+  if ((error = dlerror()) != NULL)  {  
+      fprintf (stderr, "%s\n", error);  
+      exit(1);  
+  } 
+  
+  int iret;
+  char status[10]={0};
+  iret = (*shcompfun)(lXmlhandle);
+  dlclose(handle);
+  
+  if(iret<0)
+  {
+  	strcpy(status,"0");
+  	xml_SetElement(lXmlhandle , COMP"/compstatus",status);
+  }
 	
-	/*
-	TODO
-	*/
-	strcpy(status,"0");
+//	printf("in function %s\n",__func__);
+//	char parabuf[NODELEN]={0};
+//	char nodepath[NODEPATHLEN]={0};
 	
-//	xml_GetElement(lXmlhandle , COMP"/compstatus",status,sizeof(status));
-	xml_SetElement(lXmlhandle , COMP"/compstatus",status);
+//	char filename[CFGFILENAME]={0};
+//	int i=0;
+//	int num = 0;
+//	num = xml_ElementCount(lXmlhandle,COMP"/complist/para");
+//	if(num == 0)
+//		return 0;
+//	
+//	for(i=0;i<num;i++)
+//	{
+//		memset(parabuf,0x00,sizeof(parabuf));
+//		memset(nodepath,0x00,sizeof(nodepath));
+//		snprintf(nodepath,sizeof(nodepath)-1,COMP"/complist/para|%d",i+1);
+//		xml_GetElement(lXmlhandle,nodepath,parabuf,sizeof(parabuf)-1);
+//		printf("para %d:[%s]\n",i,parabuf);
+//	}
+	
+	/*TODO*/
+	
+//	strcpy(status,"0");
+//	
+////	xml_GetElement(lXmlhandle , COMP"/compstatus",status,sizeof(status));
+//	xml_SetElement(lXmlhandle , COMP"/compstatus",status);
 	return 0;		
 }
 
@@ -114,7 +164,7 @@ int RetrievePara( HXMLTREE lXmlhandle , mxml_node_t *node_comp, mxml_node_t *tre
 	mxml_node_t		*node_paras,*node_paras_child;
 	int i=0;
 	const char *tmp;
-	char nodepath[512]={0};
+	char nodepath[NODEPATHLEN+1]={0};
 	
 	if(node_comp == NULL)
 		return -1;
@@ -138,6 +188,7 @@ int RetrievePara( HXMLTREE lXmlhandle , mxml_node_t *node_comp, mxml_node_t *tre
 			memset(nodepath,0x00,sizeof(nodepath));
 			snprintf(nodepath,sizeof(nodepath),COMP"/complist/para|%d",i+1);
 			xml_SetElement(lXmlhandle , nodepath ,tmp);
+			//加参数解析处理
 			i++;
 		}
 		node_paras_child = mxmlGetNextSibling(node_paras_child);
@@ -224,8 +275,8 @@ int code_convert(char *from_charset, char *to_charset, char *inbuf, unsigned lon
 
 int gbk2utf8(char *srcBuf)
 {
-  char srcCodepage[120] = {"GBK"};
-  char desCodepage[120] = {"UTF-8"};
+  char srcCodepage[BUF_SIZE] = {"GBK"};
+  char desCodepage[BUF_SIZE] = {"UTF-8"};
   char *pDesBuf = NULL;
 
   int ilen,iret;

@@ -4,7 +4,7 @@ MYLDFLAG= -brlt
 TMP=${HOME}/app/tmp
 CCFLAG=-D__ORACLE__
 SHLIBDIR=${HOME}/app/myproject/shlib
-LIBDIR=${HOME}/app/myproject//lib
+LIBDIR=${HOME}/app/myproject/lib
 RELEASE_VERSION=2.0.0
 CC=gcc ${OS_CCFLAG} -m32
 VPATH=${TMP}:.libs:.:
@@ -16,7 +16,7 @@ VPATH=${TMP}:.libs:.:
 
 all:libxml.la 
 libxml.la:xmle.lo xml.lo xmlnode.lo trace.lo
-	libtool --mode=link --tag=CC ${CC}  ${MYLDFLAG} -g  -O -o ${TMP}/$(@:.so=.la) $? -rpath ${LIBDIR}  -release ${RELEASE_VERSION} -export-dynamic -no-undefined -module
+	libtool --mode=link --tag=CC ${CC}  ${MYLDFLAG} -g  -O -o ${TMP}/$(@:.so=.la) $? -rpath ${LIBDIR}  -release ${RELEASE_VERSION} -export-dynamic -no-undefined -L${LIBDIR}
 
 install:
 	libtool --mode=install install -c ${TMP}/*.la ${LIBDIR}

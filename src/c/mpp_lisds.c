@@ -9,8 +9,8 @@ int main(int argc, char **argv)
 	if((hXml = xml_Create("root"))==FAIL )
 		exit(-1);
 
-	xml_SetElement(hXml,"/sys/respath","/home/traxex/app/myproject/cfg/");
-	xml_SetElement(hXml,FLOW"/flowname","mainflow.xml");
+	xml_SetElement(hXml,"/sys/respath",RESPATH);
+	xml_SetElement(hXml,FLOW"/flowname","mainflow");
 //	loadfile("/home/traxex/app/myproject/cfg/mainflow.xml",buffer,CFGFILELEN);
 //	exeflow(hXml,buffer);
 	
