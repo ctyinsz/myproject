@@ -15,9 +15,12 @@ int ExeFlow(HXMLTREE lXmlhandle)
 	char flowname[CFGFILENAME]={0};
 	char buffer[CFGFILELEN+1]={0};
 	char filename[CFGFILENAME]={0};
-	xml_GetElement(lXmlhandle,FLOW"/flowname",flowname,sizeof(flowname));
+	if((xml_GetElement(lXmlhandle,FLOW"/flowname",flowname,sizeof(flowname))) == FAIL)
+		return FAIL;
+		
 	sprintf(filename,"%s/flow/%s.xml",RESPATH,flowname);
-	loadfile(filename,buffer,CFGFILELEN);
+	if(loadfile(filename,buffer,CFGFILELEN)==FAIL)
+		return FAIL;
 	
 	mxml_node_t		*tree;
 	mxml_node_t		*node_comp;
@@ -30,35 +33,38 @@ int ExeFlow(HXMLTREE lXmlhandle)
   if (!tree)
   {
     fputs("Unable to read XML file!\n", stderr);
-    return (1);
+    return FAIL;
   }	
-  node_flowcfg = mxmlFindElement(tree,tree,"flowcfg",NULL,NULL,MXML_DESCEND);
-  if(!node_flowcfg)
-  	return 1;	
-  node_comp = mxmlFindElement(node_flowcfg,tree,"comp","compname","BEGIN",MXML_DESCEND);
-  node_status = mxmlFindElement(node_flowcfg,tree,"cfg","compstatus","0",MXML_DESCEND);
-  flowsn = mxmlElementGetAttr(node_status,"nextflowsn");
+  if( (node_flowcfg = mxmlFindElement(tree,tree,"flowcfg",NULL,NULL,MXML_DESCEND)) == NULL)
+  	return FAIL;;
+  if((node_comp = mxmlFindElement(node_flowcfg,tree,"comp","compname","BEGIN",MXML_DESCEND))==NULL)
+  	return FAIL;
+  if((node_status = mxmlFindElement(node_flowcfg,tree,"cfg","compstatus","0",MXML_DESCEND))==NULL)
+  	return FAIL;
+  if((flowsn = mxmlElementGetAttr(node_status,"nextflowsn"))==NULL)
+  	return FAIL;
   
   for(;node_comp!=NULL;)
   {
-  	node_comp = mxmlFindElement(node_flowcfg,tree,"comp","flowsn",flowsn,MXML_DESCEND);
-//  	snodename = mxmlElementGetAttr(node_comp,"compname");
-//	  if(strncmp(snodename,"END",3)==0)
-//	  	break;  	
+  	if((node_comp = mxmlFindElement(node_flowcfg,tree,"comp","flowsn",flowsn,MXML_DESCEND))==NULL)
+  		return FAIL;
+  		 	
   	iret = RetrievePara(lXmlhandle,node_comp,tree);
   	if(iret)
   		break;
   	
-  	ExeComp(lXmlhandle);
+  	if(ExeComp(lXmlhandle)==FAIL)
+  		return FAIL;
   	
-  	flowsn = NextFlowsn(lXmlhandle,node_comp,tree);
+  	if((flowsn = NextFlowsn(lXmlhandle,node_comp,tree))==NULL)
+  		return FAIL;
   	
 	  if(strncmp(flowsn,"-8888",5)==0)
 	  	break;	
   }
   
   mxmlDelete(tree); 
-  return (0);		 
+  return SUCC;		 
 }
 
 /******************************************************************************
@@ -75,9 +81,11 @@ int ExeComp(HXMLTREE lXmlhandle)
 	char compname[CFGFILENAME+1]={0};
 	char buffer[CFGFILELEN+1]={0};
 	char filename[CFGFILENAME+1]={0};
-	xml_GetElement(lXmlhandle,COMP"/compname",compname,sizeof(compname));
+	if(xml_GetElement(lXmlhandle,COMP"/compname",compname,sizeof(compname))==FAIL)
+		return FAIL;
 	sprintf(filename,"%s/comp/%s.xml",RESPATH,compname);
-	loadfile(filename,buffer,CFGFILELEN);	
+	if(loadfile(filename,buffer,CFGFILELEN)==FAIL)
+		return FAIL;	
 	
 	mxml_node_t		*tree;
 	mxml_node_t		*node_comp;
@@ -87,12 +95,16 @@ int ExeComp(HXMLTREE lXmlhandle)
   if (!tree)
   {
     fputs("Unable to read XML file!\n", stderr);
-    return (1);
+    return FAIL;
   }	
-  node_comp = mxmlFindElement(tree,tree,"appresreg","resname",compname,MXML_DESCEND);
-  node_comp_para = mxmlFindElement(node_comp,tree,"pkgregex",NULL,NULL,MXML_DESCEND);
-  compfuncname = mxmlElementGetAttr(node_comp_para,"compfuncname");
-  compfile = mxmlElementGetAttr(node_comp_para,"compfile");
+  if((node_comp = mxmlFindElement(tree,tree,"appresreg","resname",compname,MXML_DESCEND))==NULL)
+  	return FAIL;
+  if((node_comp_para = mxmlFindElement(node_comp,tree,"pkgregex",NULL,NULL,MXML_DESCEND))==NULL)
+  	return FAIL;
+  if((compfuncname = mxmlElementGetAttr(node_comp_para,"compfuncname"))==NULL)
+  	return FAIL;
+  if((compfile = mxmlElementGetAttr(node_comp_para,"compfile"))==NULL)
+  	return FAIL;
 //  printf("resname %s\n",compname);
 //  printf("funcname %s\n",compfuncname);
 //  printf("compfile %s\n",compfile);
@@ -119,36 +131,11 @@ int ExeComp(HXMLTREE lXmlhandle)
   if(iret<0)
   {
   	strcpy(status,"0");
-  	xml_SetElement(lXmlhandle , COMP"/compstatus",status);
+  	if(xml_SetElement(lXmlhandle , COMP"/compstatus",status)==FAIL)
+  		return FAIL;
   }
-	
-//	printf("in function %s\n",__func__);
-//	char parabuf[NODELEN]={0};
-//	char nodepath[NODEPATHLEN]={0};
-	
-//	char filename[CFGFILENAME]={0};
-//	int i=0;
-//	int num = 0;
-//	num = xml_ElementCount(lXmlhandle,COMP"/complist/para");
-//	if(num == 0)
-//		return 0;
-//	
-//	for(i=0;i<num;i++)
-//	{
-//		memset(parabuf,0x00,sizeof(parabuf));
-//		memset(nodepath,0x00,sizeof(nodepath));
-//		snprintf(nodepath,sizeof(nodepath)-1,COMP"/complist/para|%d",i+1);
-//		xml_GetElement(lXmlhandle,nodepath,parabuf,sizeof(parabuf)-1);
-//		printf("para %d:[%s]\n",i,parabuf);
-//	}
-	
-	/*TODO*/
-	
-//	strcpy(status,"0");
-//	
-////	xml_GetElement(lXmlhandle , COMP"/compstatus",status,sizeof(status));
-//	xml_SetElement(lXmlhandle , COMP"/compstatus",status);
-	return 0;		
+
+	return SUCC;		
 }
 
 /******************************************************************************
@@ -167,19 +154,25 @@ int RetrievePara( HXMLTREE lXmlhandle , mxml_node_t *node_comp, mxml_node_t *tre
 	char nodepath[NODEPATHLEN+1]={0};
 	
 	if(node_comp == NULL)
-		return -1;
-		
-	tmp = mxmlElementGetAttr(node_comp,"compname");
-	
-	xml_SetElement(lXmlhandle , COMP"/compname",tmp);
+		return FAIL;
+
+	if((tmp = mxmlElementGetAttr(node_comp,"compname"))==NULL)
+		return FAIL;
+
+	if(xml_SetElement(lXmlhandle , COMP"/compname",tmp)==FAIL)
+		return FAIL;
+
 	if(strncmp(tmp,"END",3)==0)
 		return 1;
-		
+
 	xml_DelElement(lXmlhandle,COMP"/complist");
 
-	node_paras = mxmlFindElement(node_comp , tree ,"fcompparacfgs" , NULL,NULL, MXML_DESCEND);
-	node_paras_child = mxmlGetFirstChild(node_paras);		
-	
+	if((node_paras = mxmlFindElement(node_comp , tree ,"fcompparacfgs" , NULL,NULL, MXML_DESCEND))==NULL)
+		return FAIL;
+
+	if((node_paras_child = mxmlGetFirstChild(node_paras))==NULL)
+		return FAIL;		
+
 	for(i=0;node_paras_child!=NULL ;)
 	{
 		tmp = mxmlElementGetAttr(node_paras_child,"paracont");
@@ -187,13 +180,14 @@ int RetrievePara( HXMLTREE lXmlhandle , mxml_node_t *node_comp, mxml_node_t *tre
 		{
 			memset(nodepath,0x00,sizeof(nodepath));
 			snprintf(nodepath,sizeof(nodepath),COMP"/complist/para|%d",i+1);
-			xml_SetElement(lXmlhandle , nodepath ,tmp);
+			if(xml_SetElement(lXmlhandle , nodepath ,tmp)==FAIL)
+				return FAIL;
 			//加参数解析处理
 			i++;
 		}
 		node_paras_child = mxmlGetNextSibling(node_paras_child);
 	}
-	return 0;	
+	return SUCC;	
 }
 
 /******************************************************************************
@@ -209,10 +203,13 @@ const char* NextFlowsn( HXMLTREE lXmlhandle ,mxml_node_t *node_comp, mxml_node_t
 	mxml_node_t		*node_cfgs;
 	mxml_node_t		*node_attr;
 	
-	xml_GetElement(lXmlhandle , COMP"/compstatus",status,sizeof(status));
+	if(xml_GetElement(lXmlhandle , COMP"/compstatus",status,sizeof(status))==FAIL)
+		return NULL;
 	
-	node_cfgs = mxmlFindElement(node_comp , tree ,"fcompstatcfgs" , NULL,NULL, MXML_DESCEND);	
-	node_attr = mxmlFindElement(node_cfgs,tree,"cfg","compstatus",status,MXML_DESCEND);
+	if((node_cfgs = mxmlFindElement(node_comp , tree ,"fcompstatcfgs" , NULL,NULL, MXML_DESCEND))==NULL)
+		return NULL;	
+	if((node_attr = mxmlFindElement(node_cfgs,tree,"cfg","compstatus",status,MXML_DESCEND))==NULL)
+		return NULL;
 		
 	return mxmlElementGetAttr(node_attr,"nextflowsn");	
 }
@@ -306,7 +303,7 @@ int loadfile(char *filename,char *buf,unsigned long inlen)
   if ((fp = fopen(filename, "rb")) == NULL)
   {
     perror(filename);
-    return (-1);
+    return FAIL;
   }
   memset(buf,0x00,inlen);
   while(!feof(fp))
@@ -314,7 +311,8 @@ int loadfile(char *filename,char *buf,unsigned long inlen)
   	buf[i++]=getc(fp);
   }
   fclose(fp);
-  gbk2utf8(buf);
+  if(gbk2utf8(buf)!=0)
+  	return FAIL;
 
-  return 0;
+  return SUCC;
 }

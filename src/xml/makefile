@@ -14,8 +14,8 @@ VPATH=${TMP}:.libs:.:
 .c.lo:
 	libtool --mode=compile --tag=CC ${CC} -g -O -o ${TMP}/$*.lo  -c $<
 
-all:libxml.la 
-libxml.la:xmle.lo xml.lo xmlnode.lo trace.lo
+all:libsxml.la 
+libsxml.la:xmle.lo xml.lo xmlnode.lo trace.lo
 	libtool --mode=link --tag=CC ${CC}  ${MYLDFLAG} -g  -O -o ${TMP}/$(@:.so=.la) $? -rpath ${LIBDIR}  -release ${RELEASE_VERSION} -export-dynamic -no-undefined -L${LIBDIR}
 
 install:

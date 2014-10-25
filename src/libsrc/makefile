@@ -9,7 +9,7 @@ LIBDIR=${HOME}/app/myproject/lib
 RELEASE_VERSION=2.0.0
 CC=gcc ${OS_CCFLAG} -m32
 VPATH=${TMP}:.libs:.:
-LINKLIB=-lmxml -pthread -lxml -ldl
+LINKLIB=-lmxml -pthread -lsxml -ldl
 
 .SUFFIXES:
 .SUFFIXES:.c .lo

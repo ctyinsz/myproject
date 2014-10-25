@@ -5,7 +5,7 @@ TMP=${HOME}/app/tmp
 CC=gcc
 VPATH=${TMP}:.
 
-LINKLIB=-lmxml -pthread -lxml -lpubbasic
+LINKLIB=-lmxml -pthread -lsxml -lpubbasic
 
 all:mpp_sds mpp_lisds
 mpp_sds:mpp_sds.c
