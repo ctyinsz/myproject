@@ -1,11 +1,11 @@
 #include	"pub.h"
 
 /******************************************************************************
-º¯ÊıÃû³Æ:  ExeFlow
-º¯Êı¹¦ÄÜ:  Ö´ĞĞÁ÷³Ì
-ÊäÈë²ÎÊı:  HXMLTREE--XML²ÎÊıÊ÷
-Êä³ö²ÎÊı:  
-·µ »Ø Öµ:  ÎŞ
+å‡½æ•°åç§°:  ExeFlow
+å‡½æ•°åŠŸèƒ½:  æ‰§è¡Œæµç¨‹
+è¾“å…¥å‚æ•°:  HXMLTREE--XMLå‚æ•°æ ‘
+è¾“å‡ºå‚æ•°:  
+è¿” å› å€¼:  æ— 
 ******************************************************************************/
 int ExeFlow(HXMLTREE lXmlhandle)
 {
@@ -26,8 +26,8 @@ int ExeFlow(HXMLTREE lXmlhandle)
 	mxml_node_t		*node_comp;
 	mxml_node_t		*node_flowcfg;
 	mxml_node_t		*node_status;
-  const char *flowsn;/*µ±Ç°½ÚµãĞòºÅ*/
-  const char *snodename;/*µ±Ç°½ÚµãÃû*/
+  const char *flowsn;/*å½“å‰èŠ‚ç‚¹åºå·*/
+  const char *snodename;/*å½“å‰èŠ‚ç‚¹å*/
   	
 	tree = mxmlLoadString(NULL, buffer, type_cb);
   if (!tree)
@@ -68,11 +68,11 @@ int ExeFlow(HXMLTREE lXmlhandle)
 }
 
 /******************************************************************************
-º¯ÊıÃû³Æ:  ExeComp
-º¯Êı¹¦ÄÜ:  ´¦ÀíÄ£¿é
-ÊäÈë²ÎÊı:  HXMLTREE--XML²ÎÊıÊ÷
-Êä³ö²ÎÊı:  
-·µ »Ø Öµ:  ÎŞ
+å‡½æ•°åç§°:  ExeComp
+å‡½æ•°åŠŸèƒ½:  å¤„ç†æ¨¡å—
+è¾“å…¥å‚æ•°:  HXMLTREE--XMLå‚æ•°æ ‘
+è¾“å‡ºå‚æ•°:  
+è¿” å› å€¼:  æ— 
 ******************************************************************************/
 int ExeComp(HXMLTREE lXmlhandle)
 {
@@ -139,11 +139,11 @@ int ExeComp(HXMLTREE lXmlhandle)
 }
 
 /******************************************************************************
-º¯ÊıÃû³Æ:  RetrievePara
-º¯Êı¹¦ÄÜ:  ½«Ä£¿éËùÓĞµÄ²ÎÊıµ¼³öµ½XML²ÎÊıÊ÷
-ÊäÈë²ÎÊı:  node_comp -- ´ı´¦Àí¸¸½Úµã£¬tree--´ı´¦ÀíÊ÷£¬HXMLTREE--XML²ÎÊıÊ÷
-Êä³ö²ÎÊı:  
-·µ »Ø Öµ:  ÎŞ
+å‡½æ•°åç§°:  RetrievePara
+å‡½æ•°åŠŸèƒ½:  å°†æ¨¡å—æ‰€æœ‰çš„å‚æ•°å¯¼å‡ºåˆ°XMLå‚æ•°æ ‘
+è¾“å…¥å‚æ•°:  node_comp -- å¾…å¤„ç†çˆ¶èŠ‚ç‚¹ï¼Œtree--å¾…å¤„ç†æ ‘ï¼ŒHXMLTREE--XMLå‚æ•°æ ‘
+è¾“å‡ºå‚æ•°:  
+è¿” å› å€¼:  æ— 
 ******************************************************************************/
 int RetrievePara( HXMLTREE lXmlhandle , mxml_node_t *node_comp, mxml_node_t *tree )
 {
@@ -182,7 +182,7 @@ int RetrievePara( HXMLTREE lXmlhandle , mxml_node_t *node_comp, mxml_node_t *tre
 			snprintf(nodepath,sizeof(nodepath),COMP"/complist/para|%d",i+1);
 			if(xml_SetElement(lXmlhandle , nodepath ,tmp)==FAIL)
 				return FAIL;
-			//¼Ó²ÎÊı½âÎö´¦Àí
+			//åŠ å‚æ•°è§£æå¤„ç†
 			i++;
 		}
 		node_paras_child = mxmlGetNextSibling(node_paras_child);
@@ -191,11 +191,11 @@ int RetrievePara( HXMLTREE lXmlhandle , mxml_node_t *node_comp, mxml_node_t *tre
 }
 
 /******************************************************************************
-º¯ÊıÃû³Æ:  NextFlowsn
-º¯Êı¹¦ÄÜ:  ¸ù¾İÄ£¿é·µ»ØÖµ²éÕÒÁ÷³ÌÊ÷ÉÏµÄÏÂÒ»¸ö½Úµã
-ÊäÈë²ÎÊı:  node_comp -- ´ı´¦Àí¸¸½Úµã£¬tree--´ı´¦ÀíÊ÷£¬HXMLTREE--XML²ÎÊıÊ÷
-Êä³ö²ÎÊı:  ÊäÈëÊôĞÔÖµ¶ÔÓ¦µÄnextflowsnÊôĞÔÖµ
-·µ »Ø Öµ:  ÎŞ
+å‡½æ•°åç§°:  NextFlowsn
+å‡½æ•°åŠŸèƒ½:  æ ¹æ®æ¨¡å—è¿”å›å€¼æŸ¥æ‰¾æµç¨‹æ ‘ä¸Šçš„ä¸‹ä¸€ä¸ªèŠ‚ç‚¹
+è¾“å…¥å‚æ•°:  node_comp -- å¾…å¤„ç†çˆ¶èŠ‚ç‚¹ï¼Œtree--å¾…å¤„ç†æ ‘ï¼ŒHXMLTREE--XMLå‚æ•°æ ‘
+è¾“å‡ºå‚æ•°:  è¾“å…¥å±æ€§å€¼å¯¹åº”çš„nextflowsnå±æ€§å€¼
+è¿” å› å€¼:  æ— 
 ******************************************************************************/	  
 const char* NextFlowsn( HXMLTREE lXmlhandle ,mxml_node_t *node_comp, mxml_node_t *tree )
 {
@@ -215,11 +215,11 @@ const char* NextFlowsn( HXMLTREE lXmlhandle ,mxml_node_t *node_comp, mxml_node_t
 }
 
 /******************************************************************************
-º¯ÊıÃû³Æ:  type_cb
-º¯Êı¹¦ÄÜ:  ÎÄ¼şÔØÈë¾ä±ú
-ÊäÈë²ÎÊı:  node -- mxml_node_t ¾ä±ú
-Êä³ö²ÎÊı:  
-·µ »Ø Öµ:  ÎŞ
+å‡½æ•°åç§°:  type_cb
+å‡½æ•°åŠŸèƒ½:  æ–‡ä»¶è½½å…¥å¥æŸ„
+è¾“å…¥å‚æ•°:  node -- mxml_node_t å¥æŸ„
+è¾“å‡ºå‚æ•°:  
+è¿” å› å€¼:  æ— 
 ******************************************************************************/
 mxml_type_t				/* O - Data type */
 type_cb(mxml_node_t *node)		/* I - Element node */
@@ -244,11 +244,11 @@ type_cb(mxml_node_t *node)		/* I - Element node */
     return (MXML_TEXT);
 }
 /******************************************************************************
-º¯ÊıÃû³Æ:  gbk2utf8
-º¯Êı¹¦ÄÜ:  ½«GBK×ª»»ÎªUTF8
-ÊäÈë²ÎÊı:  srcBuf -- ´ı´¦Àí×Ö·û´®
-Êä³ö²ÎÊı:  
-·µ »Ø Öµ:  ÎŞ
+å‡½æ•°åç§°:  gbk2utf8
+å‡½æ•°åŠŸèƒ½:  å°†GBKè½¬æ¢ä¸ºUTF8
+è¾“å…¥å‚æ•°:  srcBuf -- å¾…å¤„ç†å­—ç¬¦ä¸²
+è¾“å‡ºå‚æ•°:  
+è¿” å› å€¼:  æ— 
 ******************************************************************************/
 int code_convert(char *from_charset, char *to_charset, char *inbuf, unsigned long inlen, char *outbuf, unsigned long outlen)
 {
@@ -290,11 +290,11 @@ int gbk2utf8(char *srcBuf)
 	return 0;
 }
 /******************************************************************************
-º¯ÊıÃû³Æ:  loadfile
-º¯Êı¹¦ÄÜ:  ½«×ÊÔ´ÎÄ¼şÔØÈëµ½»º³åÇø
-ÊäÈë²ÎÊı:  filename -- ´ı´¦Àí×ÊÔ´ÎÄ¼ş£¬buf--»º³åÇø£¬inlen--»º³åÇø³¤¶È
-Êä³ö²ÎÊı:  
-·µ »Ø Öµ:  ÎŞ
+å‡½æ•°åç§°:  loadfile
+å‡½æ•°åŠŸèƒ½:  å°†èµ„æºæ–‡ä»¶è½½å…¥åˆ°ç¼“å†²åŒº
+è¾“å…¥å‚æ•°:  filename -- å¾…å¤„ç†èµ„æºæ–‡ä»¶ï¼Œbuf--ç¼“å†²åŒºï¼Œinlen--ç¼“å†²åŒºé•¿åº¦
+è¾“å‡ºå‚æ•°:  
+è¿” å› å€¼:  æ— 
 ******************************************************************************/
 int loadfile(char *filename,char *buf,unsigned long inlen)
 {

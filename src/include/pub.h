@@ -18,15 +18,15 @@
 #include "mxml.h"
 
 
-#define MAXPARANUM 100		//×î´ó²ÎÊıÊıÁ¿
-#define CFGFILELEN 16384	//×ÊÔ´ÎÄ¼ş³¤¶È
-#define COMMBUFLEN 16384			//Í¨Ñ¶»º³åÇø³¤¶È
-#define BUF_SIZE 512			//Ò»°ã»º³åÇø³¤¶È
-#define MSG_NUM 3  				//²¢·¢ÊıÁ¿
-#define LINKMODE 0 				//1 ¶ÌÁ¬½Ó 0³¤Á¬½Ó
-#define CFGFILENAME 512		//×ÊÔ´ÎÄ¼şÃû³¤¶È
-#define NODEPATHLEN 512		//²ÎÊıÊ÷½ÚµãÂ·¾¶³¤¶È
-#define NODELEN 2048			//²ÎÊıÊ÷½Úµã³¤¶È
+#define MAXPARANUM 100		//æœ€å¤§å‚æ•°æ•°é‡
+#define CFGFILELEN 16384	//èµ„æºæ–‡ä»¶é•¿åº¦
+#define COMMBUFLEN 16384			//é€šè®¯ç¼“å†²åŒºé•¿åº¦
+#define BUF_SIZE 512			//ä¸€èˆ¬ç¼“å†²åŒºé•¿åº¦
+#define MSG_NUM 3  				//å¹¶å‘æ•°é‡
+#define LINKMODE 0 				//1 çŸ­è¿æ¥ 0é•¿è¿æ¥
+#define CFGFILENAME 512		//èµ„æºæ–‡ä»¶åé•¿åº¦
+#define NODEPATHLEN 512		//å‚æ•°æ ‘èŠ‚ç‚¹è·¯å¾„é•¿åº¦
+#define NODELEN 2048			//å‚æ•°æ ‘èŠ‚ç‚¹é•¿åº¦
 
 #define FLOW "/sys/flow"
 #define COMP FLOW"/comp"
@@ -34,13 +34,13 @@
 
 #define RESPATH "/home/traxex/app/myproject/cfg"
 
-//×ÊÔ´ÎÄ¼ş²Ù×÷
+//èµ„æºæ–‡ä»¶æ“ä½œ
 mxml_type_t	type_cb(mxml_node_t *node);
 int loadfile(char *filename,char *buf,unsigned long inlen);
 int gbk2utf8(char *srcBuf);
 int code_convert(char *from_charset, char *to_charset, char *inbuf, unsigned long inlen, char *outbuf, unsigned long outlen);
 
-//Á÷³Ì×ÊÔ´´¦Àí
+//æµç¨‹èµ„æºå¤„ç†
 //int exeflow(HXMLTREE lXmlhandle,char *flowbuf);
 //int flow_GetParas(mxml_node_t *node_comp, mxml_node_t *tree,const char **paras_out, int maxnum);
 //const char *flow_GetStatus(mxml_node_t *node_comp, mxml_node_t *tree, char *statuscfg);
@@ -51,5 +51,5 @@ int RetrievePara( HXMLTREE lXmlhandle , mxml_node_t *node_comp, mxml_node_t *tre
 const char* NextFlowsn( HXMLTREE lXmlhandle ,mxml_node_t *node_comp, mxml_node_t *tree );
 
 
-//×é¼ş×ÊÔ´´¦Àí
+//ç»„ä»¶èµ„æºå¤„ç†
 int ExeComp(HXMLTREE lXmlhandle);

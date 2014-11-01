@@ -28,13 +28,13 @@ int main(int argc, char **argv)
   {
       if( (portnumber = atoi(argv[1])) < 0 )
       {
-          fprintf(stderr,"Usage:%s portnumber/a/n",argv[0]);
+          fprintf(stderr,"Usage:%s ç«¯å£å·/a/n",argv[0]);
           return 1;
       }
   }
   else
   {
-      fprintf(stderr,"Usage:%s portnumber/a/n",argv[0]);
+      fprintf(stderr,"Usage:%s ç«¯å£å·/a/n",argv[0]);
       return 1;
   }
 
@@ -42,23 +42,23 @@ int main(int argc, char **argv)
 	void *thread_result = NULL; 
 
 	msg = (struct sockqueue*)malloc(sizeof(struct sockqueue));
-  //³õÊ¼»¯½á¹¹Ìå
+  //åˆå§‹åŒ–ç»“æ„ä½“
   msg->ridx = 0;
   msg->ridx = 0;
   msg->count = 0;
   for(i=0;i<MSG_NUM;i++)
   	msg->Qsock[i]=0;
 
-   /********ÉèÖÃ¶ÓÁĞ²Ù×÷ĞÅºÅÁ¿********/ 
+   /********è®¾ç½®é˜Ÿåˆ—æ“ä½œä¿¡å·é‡********/ 
    
-    //³õÊ¼»¯ĞÅºÅÁ¿,³õÊ¼ÖµÎª0  
+    //åˆå§‹åŒ–ä¿¡å·é‡,åˆå§‹å€¼ä¸º0  
     res = sem_init(&msg->rsem, 0, 0);  
     if(res == -1)  
     {  
         perror("semaphore intitialization failed\n");  
         exit(EXIT_FAILURE);  
     }  
-    //³õÊ¼»¯ĞÅºÅÁ¿,³õÊ¼ÖµÎª1 
+    //åˆå§‹åŒ–ä¿¡å·é‡,åˆå§‹å€¼ä¸º1 
     res = sem_init(&msg->wsem, 0, MSG_NUM);  
     if( res == -1)  
     {  
@@ -66,21 +66,21 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);  
     }
     
-    /********ÉèÖÃ¶ÓÁĞ²Ù×÷ĞÅºÅÁ¿********/ 
+    /********è®¾ç½®é˜Ÿåˆ—æ“ä½œä¿¡å·é‡********/ 
 
-     //ÔÚÖ÷Ïß³ÌÖĞÆÁ±ÎSIGINTĞÅºÅ£¬ÒÔ·À±»×ÓÏß³Ì¼Ì³Ğ
+     //åœ¨ä¸»çº¿ç¨‹ä¸­å±è”½SIGINTä¿¡å·ï¼Œä»¥é˜²è¢«å­çº¿ç¨‹ç»§æ‰¿
     sigset_t sigset, oldset;
     sigemptyset(&sigset);
     sigaddset(&sigset, SIGINT);
     pthread_sigmask(SIG_BLOCK, &sigset, &oldset);   
-    //´´½¨Éú²úÕßÏß³Ì£¬²¢°Ñmsg×÷ÎªÏß³Ìº¯ÊıµÄ²ÎÊı  
+    //åˆ›å»ºç”Ÿäº§è€…çº¿ç¨‹ï¼Œå¹¶æŠŠmsgä½œä¸ºçº¿ç¨‹å‡½æ•°çš„å‚æ•°  
     res = pthread_create(&thread_p, NULL, thread_producer, NULL);  
     if(res != 0)  
     {
         perror("producer thread_create failed\n");  
         exit(EXIT_FAILURE);  
     }
-    //´´½¨Ïû·ÑÕßÏß³Ì£¬²¢°Ñmsg×÷ÎªÏß³Ìº¯ÊıµÄ²ÎÊı  
+    //åˆ›å»ºæ¶ˆè´¹è€…çº¿ç¨‹ï¼Œå¹¶æŠŠmsgä½œä¸ºçº¿ç¨‹å‡½æ•°çš„å‚æ•°  
     res = pthread_create(&thread_c, NULL, thread_consumer, NULL);  
     if(res != 0)  
     {
@@ -88,20 +88,20 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);  
     }	
     
-    //»Ö¸´Ö÷Ïß³ÌĞÅºÅ
+    //æ¢å¤ä¸»çº¿ç¨‹ä¿¡å·
     pthread_sigmask(SIG_SETMASK, &oldset, NULL);
     
-    //´´½¨ĞÅºÅ´¦Àí
+    //åˆ›å»ºä¿¡å·å¤„ç†
     struct sigaction s;
     s.sa_handler = sigchld_handler;
     sigemptyset(&s.sa_mask);
     s.sa_flags = 0;
     sigaction(SIGINT, &s, NULL);    
 
-    //µÈ´ıĞÅºÅ  
+    //ç­‰å¾…ä¿¡å·  
 
   pause();    
-  //½áÊø×ÓÏß³Ì		
+  //ç»“æŸå­çº¿ç¨‹		
 	res = pthread_cancel(thread_p);    
   if(res != 0)  
   {  
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
       perror("pthread_cancel failed\n");  
       exit(EXIT_FAILURE);  
   }  
-  //µÈ´ı×ÓÏß³Ì½áÊø    
+  //ç­‰å¾…å­çº¿ç¨‹ç»“æŸ    
   res = pthread_join(thread_p, &thread_result);  
   if(res != 0)  
   {  
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
       exit(EXIT_FAILURE);  
   }
   printf("Thread joined\n");  
-  //ÇåÀíĞÅºÅÁ¿  
+  //æ¸…ç†ä¿¡å·é‡  
   sem_destroy(&msg->rsem);  
   sem_destroy(&msg->wsem); 
 	
@@ -139,7 +139,7 @@ void* thread_producer(void *msgs)
 		printf("create server_socket error!\n");
 		exit(1);
 	}
-	//ÉèÎª·Ç×èÈû
+	//è®¾ä¸ºéé˜»å¡
 	if (fcntl(server_sockfd, F_SETFL, O_NONBLOCK) == -1) {
 		printf("Set server socket nonblock failed\n");
 		exit(1);
@@ -150,16 +150,16 @@ void* thread_producer(void *msgs)
 	memset(&server_sockaddr, 0, sizeof(server_sockaddr));
 	server_sockaddr.sin_family = AF_INET;
 	server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	//ÉèÖÃ¼àÌı¶Ë¿Ú
+	//è®¾ç½®ç›‘å¬ç«¯å£
 	server_sockaddr.sin_port = htons(portnumber);
 	server_len = sizeof(server_sockaddr);	
-	//°ó¶¨
+	//ç»‘å®š
 	rcd = bind(server_sockfd, (struct sockaddr *) &server_sockaddr, server_len);
 	if (rcd == -1) {
 		printf("bind port %d error!\n", ntohs(server_sockaddr.sin_port));
 		exit(1);
 	}
-	//¼àÌı
+	//ç›‘å¬
 	rcd = listen(server_sockfd, BACKLOG);
 	if (rcd == -1) {
 		printf("listen error!\n");
@@ -254,7 +254,7 @@ void *thread_consumer(void * str)
 
 	    		write(cli_sock, respbuf, n);
 	    	}
-	    	if((n <= 0 && errno != EAGAIN)||(LINKMODE))//1 ¶ÌÁ¬½Ó 0³¤Á¬½Ó
+	    	if((n <= 0 && errno != EAGAIN)||(LINKMODE))//1 çŸ­è¿æ¥ 0é•¿è¿æ¥
 	    	{
 	    		shutdown(cli_sock,2);
 	    		printf("socket %d closed \n",cli_sock);
@@ -267,12 +267,12 @@ void *thread_consumer(void * str)
     }
     xml_Destroy(hXml);
 
-    //ÍË³öÏß³Ì  
+    //é€€å‡ºçº¿ç¨‹  
     pthread_exit(NULL);  
 }
 
 /**************************
-¶ÓÁĞ²Ù×÷º¯Êı
+é˜Ÿåˆ—æ“ä½œå‡½æ•°
 ***************************/
 int dataget(int *sockfd)
 {
@@ -314,7 +314,7 @@ int datapull(int sockfd)
 	return 0;
 }
 /**************************
-½ø³ÌÖÕÖ¹ĞÅºÅ»Øµ÷º¯Êı
+è¿›ç¨‹ç»ˆæ­¢ä¿¡å·å›è°ƒå‡½æ•°
 ***************************/
 void sigchld_handler( int signo ){
 	printf("sigchld_handler\n");

@@ -13,7 +13,8 @@ int main(int argc, char **argv)
 	xml_SetElement(hXml,FLOW"/flowname","mainflow");
 //	loadfile("/home/traxex/app/myproject/cfg/mainflow.xml",buffer,CFGFILELEN);
 //	exeflow(hXml,buffer);
-	
+	char str[]="mainflow.xml";
+	printf("开始执行流程:[%s]\n",str);
 	ExeFlow(hXml);
 	
 	xml_Destroy(hXml);
