@@ -16,12 +16,16 @@ LINKLIB=-lmxml -pthread -lsxml -ldl
 .c.lo:
 	libtool --mode=compile --tag=CC ${CC} -g -O -o ${TMP}/$*.lo $(INCLUDE) -c $<
 
-all:libpubbasic.la 
-libpubbasic.la:libpubbasic.lo
+all:libpub.la  libbase.la
+libpub.la:libpub.lo
+	libtool --mode=link --tag=CC ${CC}  ${MYLDFLAG} -g  -O -o ${TMP}/$(@:.so=.la) $? -rpath ${LIBDIR}  -release ${RELEASE_VERSION} -export-dynamic -no-undefined  ${INCLUDE} -L${LIBDIR} ${LINKLIB}
+libbase.la:libbase.lo
 	libtool --mode=link --tag=CC ${CC}  ${MYLDFLAG} -g  -O -o ${TMP}/$(@:.so=.la) $? -rpath ${LIBDIR}  -release ${RELEASE_VERSION} -export-dynamic -no-undefined  ${INCLUDE} -L${LIBDIR} ${LINKLIB}
 
+
 install:
-	libtool --mode=install install -c ${TMP}/libpubbasic.la ${LIBDIR}
+	libtool --mode=install install -c ${TMP}/libpub.la ${LIBDIR}
+	libtool --mode=install install -c ${TMP}/libbase.la ${LIBDIR}
 	libtool --mode=finish  ${LIBDIR}
 
 clean:
