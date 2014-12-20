@@ -103,7 +103,7 @@ int server_accept(int server_sockfd,int timeout)
 			default:
 				if (FD_ISSET(server_sockfd, &watchset))
 				{
-					clisocklen = sizeof(client_sockfd);
+					clisocklen = sizeof(client_sockaddr);
 					client_sockfd = accept(server_sockfd,(struct sockaddr *) &client_sockaddr, &clisocklen);
 					if (client_sockfd < 0)
 					{
@@ -275,6 +275,7 @@ int server_config(SOCKLIST *socketlist,size_t count,int op,int fd,int status)
 			{
 				socketlist[index].sockfd = 0;
 				socketlist[index].status = 0;
+				socketlist[index].opstat = 0;
 				return 0;
 			}
 		}
@@ -283,6 +284,7 @@ int server_config(SOCKLIST *socketlist,size_t count,int op,int fd,int status)
 			if(socketlist[index].sockfd == fd)
 			{
 				socketlist[index].status = status;
+				socketlist[index].opstat = 0;
 				return 0;
 			}
 		}
@@ -309,6 +311,7 @@ int server_waiting(SOCKLIST *socketlist,size_t count,size_t *maxtime)
 //  time_t  dm;
   size_t  index;
   int   iRet;
+  int socknum = 0;
   if ( socketlist == NULL )
   {
     printf("[%s][%d]套接字非法!\n",__FILE__,__LINE__);
@@ -329,6 +332,7 @@ int server_waiting(SOCKLIST *socketlist,size_t count,size_t *maxtime)
   {
     if ( socketlist[index].sockfd > 0 )
     {
+    	socknum++;
       if ( socketlist[index].sockfd> maxfd)
       {
         maxfd = socketlist[index].sockfd;
@@ -348,6 +352,8 @@ int server_waiting(SOCKLIST *socketlist,size_t count,size_t *maxtime)
 //      socketlist[index].status = 0;
     }
   }
+  if(socknum == 0)
+  	return 1;
 
   for ( ;; )
   {
@@ -357,7 +363,7 @@ int server_waiting(SOCKLIST *socketlist,size_t count,size_t *maxtime)
     {
       /*printf("[%s][%d]轮询套接字超时!\n",__FILE__,__LINE__);*/
       
-      return 0;
+      return 1;
     }
     if ( iRet < 0 )
     {
@@ -395,7 +401,7 @@ int server_waiting(SOCKLIST *socketlist,size_t count,size_t *maxtime)
       }
     }
   }
-	return 1;
+	return 0;
 }
 
 /***************************************************
