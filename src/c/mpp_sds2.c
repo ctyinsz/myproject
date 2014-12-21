@@ -3,6 +3,7 @@
 
 #define BACKLOG   5
 #define MAXEPOLLSIZE 100000
+#define MAXEPOLLEVENTS 100000
 #define MAXFDSET 1024
 struct sockqueue
 {
@@ -16,6 +17,7 @@ struct sockqueue
 
 void *thread_producer(void *);
 void *thread_consumer(void *); 
+void *thread_consumer_epoll(void *); 
 int dataget(int *sockfd);
 int datapull(int sockfd);
 void sigchld_handler( int signo );
@@ -59,7 +61,8 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);  
     }
     //创建消费者线程，并把msg作为线程函数的参数  
-    res = pthread_create(&thread_c, NULL, thread_consumer, NULL);  
+//    res = pthread_create(&thread_c, NULL, thread_consumer, NULL);  
+    res = pthread_create(&thread_c, NULL, thread_consumer_epoll, NULL);  
     if(res != 0)  
     {
         perror("consumer thread_create failed\n");  
@@ -316,4 +319,107 @@ int dealrequest(SOCKLIST *socketlist,size_t count)
 	}
 	return closedsocknum;
 }
+
+void *thread_consumer_epoll(void * str)
+{
+	int ret,i;
+	struct epoll_event ev,events[MAXEPOLLEVENTS];
+	int socknum = 0;
+	int client_sockfd,sockfd;
+	int timeout=0;
+	
+	memset(&ev,0x00,sizeof(ev));
+	memset(events,0x00,sizeof(events));
+	int epfd,nfds;
+	
+	epfd=epoll_create(MAXEPOLLSIZE);
+	
+	while(1)
+	{
+		while(socknum < MAXFDSET)
+		{
+			ret = sem_trywait(&msg->rsem);
+//			printf("sem_trywait ret=[%d],errno=[%d]:[%s]\n",ret,errno,strerror(errno));
+			if(ret == 0)
+			{
+				ret = dataget(&client_sockfd);
+				if(ret)
+					break;
+				if(client_sockfd<=0)
+					break;
+//				printf("添加socket[%d]到监视列表\n",client_sockfd);
+				
+				ret = epoll_config(epfd, EPOLL_CTL_ADD, client_sockfd,EPOLLIN|EPOLLET);
+
+//				ret = server_config(workingsocket,MAXFDSET,0,client_sockfd,R_OK);	
+//				printf("server_config ret=[%d],errno=[%d]:[%s]\n",ret,errno,strerror(errno));
+				if(ret < 0 && errno == ENOMEM)
+				{
+					sem_wait(&msg->wsem);
+					datapull(client_sockfd);
+					sem_post(&msg->rsem);
+				}
+				socknum++;
+				sem_post(&msg->wsem);
+			}
+			else
+			{
+				if(errno == EAGAIN)
+					break;
+				else
+				{
+					printf("客户端文件描述符同步操作失败\n");
+					exit(1);
+				}
+			}
+		}
+		timeout = 0;
+		
+		nfds=epoll_wait(epfd,events,MAXEPOLLEVENTS,timeout);
+		for(i=0;i<nfds;++i)
+		{
+			if(events[i].events&EPOLLIN)
+			{
+				if ( (sockfd = events[i].data.fd) < 0)
+					continue;
+				ret = epoll_dealrequest(sockfd);
+				if(ret == 0)
+				{
+					epoll_config(epfd, EPOLL_CTL_DEL, sockfd,NULL);	
+					shutdown(sockfd,2);
+					printf("socket %d closed \n",sockfd);
+				}
+			}
+		}
+	}
+    //退出线程  
+    pthread_exit(NULL);  
+}
+
+int epoll_dealrequest(int sockfd)
+{
+	int n=0;
+//	char buf[BUF_SIZE+1]={0};
+	char *buf = (char *)calloc(BUF_SIZE+1,0);
+	char respbuf[BUF_SIZE+1]={0};
+
+//	n = recvallbyte(sockfd, &buf, BUF_SIZE,0);
+	n = recv(sockfd, buf, BUF_SIZE,0);
+//			printf("socket %d recvd[%d],errno=[%d]:[%s]\n",cli_sock,n,errno,strerror(errno));
+	if(n > 0)
+	{
+		printf("socket[%d] received msg: [%s] \n",sockfd,buf);
+//    		xml_SetElement(hXml,FLOW"/flowname","mainflow.xml");
+//    		xml_SetElement(hXml,COMMBUF,buf);
+//    		ExeFlow(hXml);
+			strcpy(respbuf,buf);
+//    		n=xml_GetElement(hXml,COMMBUF,respbuf,BUF_SIZE-1);
+
+//		write(sockfd, buf,n);
+		write(sockfd, respbuf,n);
+	}
+//	realloc(buf,0);
+	return n;
+}
+
 
