@@ -405,17 +405,84 @@ int server_waiting(SOCKLIST *socketlist,size_t count,size_t *maxtime)
 }
 
 /***************************************************
- * 函数名称: epoll_waiting
- * 函数功能: 等待socket状态
- * 输入参数: socketlist,
+ * 函数名称: recvallbytes
+ * 函数功能: 读取所有可读数据
+ * 输入参数: ,
  * 输出参数: 无
  * 函数返回: 无
  ****************************************************/
-//int epoll_waiting(int epfd, struct epoll_event * events,int maxevents, int timeout)
-//{
-//	
-//	
-//	
-//}
+ void *expandbuffer(void *ptr, size_t size)
+{
+	void *ret = malloc(size);
+	memset(ret,0,size);
+
+	int num = strlen(ptr);
+	if(num <= size && num > 0)
+	{
+			memcpy(ret,ptr,num)	;
+	}
+	else if(num > size)
+		memcpy(ret,ptr,size);
+	else if(num < 0)
+		return NULL;
+
+ 	free(ptr);
+ 	return ret;
+}
+
+int recvallbytes(int s, void **buf, size_t len,int flags)
+{
+	void *tmpbuf = malloc(len+1);
+	memset(tmpbuf,0,len+1);
+	void *tmp;
+	int n=0,i=0,j=0;
+	int buflen = len;
+	int bytescounter=0;
+	setnonblocking(s);
+	do
+	{
+		n = recv(s,tmpbuf,len,flags);
+		if( n < len && n >= 0)
+		{
+			strcat(*buf,tmpbuf);
+			free(tmpbuf);
+			bytescounter = bytescounter + n;
+			return bytescounter;
+		}
+		else if(n == len)
+		{
+			buflen = strlen(*buf) + len*2;
+			tmp = expandbuffer(*buf,buflen);
+			if(!tmp)
+			{
+				errno = ENOMEM;
+				return -1;
+			}
+			else
+			{
+				*buf = tmp;
+				if(strlen(tmp) == 0)
+				{
+					memmove(tmp,tmpbuf,len);
+				}
+				else
+				{
+					strcat(*buf,tmpbuf);
+				}
+				memset(tmpbuf,0x00,len+1);
+				bytescounter = bytescounter + n;
+			}
+		}
+		else
+		{
+			free(tmpbuf);
+			return bytescounter;
+		}
+	}
+	while(1);
+
+}
+
+
 
 

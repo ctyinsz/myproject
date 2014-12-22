@@ -42,3 +42,4 @@ int server_waiting(SOCKLIST *socketlist,size_t count,size_t *maxtime);
 int epoll_config(int epfd, int op, int fd,uint32_t events);
 //int epoll_waiting(int epfd, struct epoll_event * events,int maxevents, int timeout);
 
+int recvallbytes(int s, void **buf, size_t len,int flags);

@@ -231,7 +231,7 @@ struct sockqueue* sockqueue_init()
 	struct sockqueue* msg = NULL;
 //	if(msg == NULL)
 //		return 0;
-	msg = (struct sockqueue*)calloc(sizeof(struct sockqueue),0);
+	msg = (struct sockqueue*)calloc(1,sizeof(struct sockqueue));
   //初始化结构体
   msg->ridx = 0;
   msg->ridx = 0;
@@ -326,7 +326,7 @@ void *thread_consumer_epoll(void * str)
 	struct epoll_event ev,events[MAXEPOLLEVENTS];
 	int socknum = 0;
 	int client_sockfd,sockfd;
-	int timeout=0;
+	int timeout=10;
 	
 	memset(&ev,0x00,sizeof(ev));
 	memset(events,0x00,sizeof(events));
@@ -400,24 +400,25 @@ int epoll_dealrequest(int sockfd)
 {
 	int n=0;
 //	char buf[BUF_SIZE+1]={0};
-	char *buf = (char *)calloc(BUF_SIZE+1,0);
+	char *buf = (char *)calloc(1,BUF_SIZE+1);
 	char respbuf[BUF_SIZE+1]={0};
 
-//	n = recvallbyte(sockfd, &buf, BUF_SIZE,0);
-	n = recv(sockfd, buf, BUF_SIZE,0);
+	n = recvallbytes(sockfd, &buf, BUF_SIZE,0);
+//	n = recv(sockfd, buf, BUF_SIZE,0);
 //			printf("socket %d recvd[%d],errno=[%d]:[%s]\n",cli_sock,n,errno,strerror(errno));
 	if(n > 0)
 	{
-		printf("socket[%d] received msg: [%s] \n",sockfd,buf);
+		printf("socket[%d] received msg: [%d]:[%s] \n",sockfd,n,buf);
 //    		xml_SetElement(hXml,FLOW"/flowname","mainflow.xml");
 //    		xml_SetElement(hXml,COMMBUF,buf);
 //    		ExeFlow(hXml);
-			strcpy(respbuf,buf);
+//			strcpy(respbuf,buf);
 //    		n=xml_GetElement(hXml,COMMBUF,respbuf,BUF_SIZE-1);
 
-//		write(sockfd, buf,n);
-		write(sockfd, respbuf,n);
+		write(sockfd, buf,n);
+//		write(sockfd, respbuf,n);
 	}
+	free(buf);
 //	realloc(buf,0);
 	return n;
 }
