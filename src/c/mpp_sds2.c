@@ -76,6 +76,12 @@ int main(int argc, char **argv)
       perror("pthread_join failed\n");  
       exit(EXIT_FAILURE);  
   }
+  res = pthread_join(thread_c, &thread_result);  
+  if(res != 0)  
+  {  
+      perror("pthread_join failed\n");  
+      exit(EXIT_FAILURE);  
+  }
   printf("Thread joined\n");  
   
   sockqueue_close(msg);
@@ -269,7 +275,7 @@ int sockqueue_close(struct sockqueue* msg)
 
 int dealrequest(SOCKLIST *socketlist,size_t count)
 {
-	int ret;
+	int ret,k,p;
 	int i,j,n,cli_sock,closedsocknum=0;
 	char buf[BUF_SIZE+1]={0};
 	char respbuf[BUF_SIZE+1]={0};
@@ -296,6 +302,8 @@ int dealrequest(SOCKLIST *socketlist,size_t count)
 //    		ExeFlow(hXml);
     			strcpy(respbuf,buf);
 //    		n=xml_GetElement(hXml,COMMBUF,respbuf,BUF_SIZE-1);
+					for(k=0;k<1000;k++)
+						for(p=0;p<100000;p++);
 
     		write(cli_sock, respbuf, n);
     		socketlist[i].opstat = 0 ;
@@ -349,6 +357,7 @@ void *thread_consumer_epoll(void * str)
 					break;
 //				printf("添加socket[%d]到监视列表\n",client_sockfd);
 				
+				setnonblocking(client_sockfd);
 				ret = epoll_config(epfd, EPOLL_CTL_ADD, client_sockfd,EPOLLIN|EPOLLET);
 
 //				ret = server_config(workingsocket,MAXFDSET,0,client_sockfd,R_OK);	
@@ -365,16 +374,22 @@ void *thread_consumer_epoll(void * str)
 			else
 			{
 				if(errno == EAGAIN)
+				{
 					break;
+				}
 				else
 				{
-					printf("客户端文件描述符同步操作失败\n");
+					printf("客户端文件描述符同步操作失败[%d][%s]\n",errno,strerror(errno));
 					exit(1);
 				}
 			}
 		}
 		timeout = 0;
-		
+		if(socknum<=0)
+		{
+			sleep(2);
+			continue;
+		}
 		nfds=epoll_wait(epfd,events,MAXEPOLLEVENTS,timeout);
 		for(i=0;i<nfds;++i)
 		{
@@ -387,6 +402,7 @@ void *thread_consumer_epoll(void * str)
 				{
 					epoll_config(epfd, EPOLL_CTL_DEL, sockfd,NULL);	
 					shutdown(sockfd,2);
+					socknum--;
 					printf("socket %d closed \n",sockfd);
 				}
 			}
@@ -399,6 +415,7 @@ void *thread_consumer_epoll(void * str)
 int epoll_dealrequest(int sockfd)
 {
 	int n=0;
+	int k,p;
 //	char buf[BUF_SIZE+1]={0};
 	char *buf = (char *)calloc(1,BUF_SIZE+1);
 	char respbuf[BUF_SIZE+1]={0};
@@ -414,7 +431,8 @@ int epoll_dealrequest(int sockfd)
 //    		ExeFlow(hXml);
 //			strcpy(respbuf,buf);
 //    		n=xml_GetElement(hXml,COMMBUF,respbuf,BUF_SIZE-1);
-
+					for(k=0;k<10000;k++)
+						for(p=0;p<1000000;p++);
 		write(sockfd, buf,n);
 //		write(sockfd, respbuf,n);
 	}
