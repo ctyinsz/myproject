@@ -1,6 +1,6 @@
 #include	"pub.h"
 #include	"base.h"
-
+#include  <unistd.h> 
 #define BACKLOG   5
 #define MAXEPOLLSIZE 100000
 #define MAXEPOLLEVENTS 100000
