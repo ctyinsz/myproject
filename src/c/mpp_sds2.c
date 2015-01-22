@@ -14,12 +14,15 @@ struct sockqueue
 	sem_t rsem;
 	sem_t wsem;
 };
+pthread_mutex_t sq_lock;  
+pthread_cond_t sq_flag;
 
 void *thread_producer(void *);
 void *thread_consumer(void *); 
 void *thread_consumer_epoll(void *); 
 int dataget(int *sockfd);
 int datapull(int sockfd);
+int isqempty();
 void sigchld_handler( int signo );
 struct sockqueue* sockqueue_init();
 struct sockqueue *msg = NULL;
@@ -52,7 +55,10 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE); 
 	}
 
-
+	/*初始化互斥锁和条件变量*/
+	pthread_mutex_init(&sq_lock, NULL);  
+	pthread_cond_init(&sq_flag, NULL);  
+	
     //创建生产者线程，并把msg作为线程函数的参数  
     res = pthread_create(&thread_p, NULL, thread_producer, NULL);  
     if(res != 0)  
@@ -109,7 +115,10 @@ void* thread_producer(void *msgs)
 		client_sock = server_accept(server_sock,timeout);
 		if(client_sock > 0)
 		{
+			pthread_mutex_lock(&sq_lock); 
 			datapull(client_sock);
+			pthread_cond_signal(&sq_flag);
+			pthread_mutex_unlock(&sq_lock); 
 			sem_post(&msg->rsem);
 			sem_wait(&msg->wsem);  
 		}
@@ -128,6 +137,12 @@ void *thread_consumer(void * str)
 	int timeout=0;
 	while(1)
 	{
+		//等待任务开始标志
+		pthread_mutex_lock(&sq_lock); 
+		while(isqempty())
+		{
+			pthread_cond_wait(&sq_flag, &sq_lock); 
+		}
 		while(socknum < MAXFDSET)
 		{
 			ret = sem_trywait(&msg->rsem);
@@ -162,6 +177,7 @@ void *thread_consumer(void * str)
 				}
 			}
 		}
+		pthread_mutex_unlock(&sq_lock); 
 		timeout = 0;
 		ret = server_waiting(workingsocket,MAXFDSET,&timeout);
 //		printf("server_waiting ret=[%d],errno=[%d]:[%s]\n",ret,errno,strerror(errno));
@@ -218,6 +234,13 @@ int datapull(int sockfd)
 	msg->widx++;
 //	printf("push:%d,idx:%d\n",sockfd,msg->widx-1);
 	return 0;
+}
+int isqempty()
+{
+	if(msg->count>0)
+		return 0;
+	else
+		return 1;
 }
 /**************************
 进程终止信号回调函数
@@ -344,6 +367,12 @@ void *thread_consumer_epoll(void * str)
 	
 	while(1)
 	{
+		//等待任务开始标志
+		pthread_mutex_lock(&sq_lock); 
+		while(isqempty())
+		{
+			pthread_cond_wait(&sq_flag, &sq_lock); 
+		}
 		while(socknum < MAXFDSET)
 		{
 			ret = sem_trywait(&msg->rsem);
@@ -384,12 +413,14 @@ void *thread_consumer_epoll(void * str)
 				}
 			}
 		}
+		pthread_mutex_unlock(&sq_lock); 
+
 		timeout = 0;
-		if(socknum<=0)
-		{
-			sleep(2);
-			continue;
-		}
+//		if(socknum<=0)
+//		{
+//			sleep(2);
+//			continue;
+//		}
 		nfds=epoll_wait(epfd,events,MAXEPOLLEVENTS,timeout);
 		for(i=0;i<nfds;++i)
 		{
